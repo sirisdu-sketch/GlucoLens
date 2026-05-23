@@ -11,7 +11,7 @@ export function SignOutButton() {
   const onClick = async () => {
     setLoading(true);
     const sb = supabaseBrowser();
-    await sb.auth.signOut();
+    if (sb) await sb.auth.signOut();
     router.push("/");
     router.refresh();
   };

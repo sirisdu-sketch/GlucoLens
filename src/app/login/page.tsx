@@ -20,6 +20,11 @@ function LoginForm() {
     setStatus("sending");
     setErrMsg("");
     const sb = supabaseBrowser();
+    if (!sb) {
+      setStatus("error");
+      setErrMsg("账户功能尚未启用（Supabase 环境变量未配置）。请稍后再试。");
+      return;
+    }
     const origin =
       typeof window !== "undefined" ? window.location.origin : "";
     const { error } = await sb.auth.signInWithOtp({

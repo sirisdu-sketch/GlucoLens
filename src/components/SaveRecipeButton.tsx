@@ -26,6 +26,10 @@ export function SaveRecipeButton({ recipe, preferences }: Props) {
 
   useEffect(() => {
     const sb = supabaseBrowser();
+    if (!sb) {
+      setAuthReady(true);
+      return;
+    }
     sb.auth.getUser().then(({ data }: { data: { user: User | null } }) => {
       setAuthed(!!data.user);
       setAuthReady(true);
@@ -39,6 +43,10 @@ export function SaveRecipeButton({ recipe, preferences }: Props) {
   }, []);
 
   const onSave = async () => {
+    if (!supabaseBrowser()) {
+      setState({ kind: "error", msg: "账户功能尚未启用（Supabase 未配置）" });
+      return;
+    }
     if (!authed) {
       setState({ kind: "anon" });
       return;
