@@ -5,8 +5,34 @@
 
 > An evidence-based diabetes-friendly recipe generator. Input your available ingredients; AI generates a low-GI dish constrained by 8 hard rules sourced from Chinese, ADA, and Japanese diabetes guidelines, with rule-level compliance audit and explicit carb counts.
 
-**Live**: _部署后填写_
+**Live**: https://glucolens-xi.vercel.app/
 **Status**: 求职作品集 demo / personal project · 不构成医疗建议 · not for clinical use
+
+---
+
+## 界面预览 / Preview
+
+| 默认模式 / Default | 长辈模式 / Senior mode |
+|---|---|
+| ![](docs/screenshots/01-home-default.png) | ![](docs/screenshots/02-home-senior.png) |
+
+| 食材选择 / Ingredient picking | 流式生成 / Streaming loading |
+|---|---|
+| ![](docs/screenshots/03-ingredients-selected.png) | ![](docs/screenshots/04-loading.png) |
+
+完整食谱卡片 / Full recipe card：
+
+![](docs/screenshots/05-result-card.png)
+
+| 规则审计 / Rules audit | 餐伴安排 / Companions |
+|---|---|
+| ![](docs/screenshots/06-rules-audit.png) | ![](docs/screenshots/07-companions.png) |
+
+移动端 / Mobile：
+
+<img src="docs/screenshots/08-mobile.png" width="280" />
+
+> 截图脚本：`node scripts/screenshots.mjs`（需要 `pnpm add -D playwright && npx playwright install chromium`）
 
 ---
 
