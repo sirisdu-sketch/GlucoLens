@@ -682,9 +682,28 @@ html[data-senior="true"] .gl-root{ --ink:#1F1A12; --ink-soft:#5D5443; }
 html[data-senior="true"] .gl-root .chip{ border-width:2px; }
 html[data-senior="true"] .gl-root .custom-input{ border-width:2px; }
 
+/* ---------- 顶部导航条 ---------- */
+.top-nav{
+  position:absolute; top:18px; left:18px; right:18px; z-index:5;
+  display:flex; justify-content:space-between; align-items:center;
+  gap:8px; pointer-events:none;
+}
+.top-nav > *{ pointer-events:auto; }
+.me-link{
+  display:inline-flex; align-items:center;
+  font-family:inherit; font-size:13px; color:var(--sage-d); font-weight:600;
+  text-decoration:none;
+  background:var(--surface2); border:1.5px solid var(--line);
+  border-radius:999px; padding:7px 13px;
+  transition:background .16s, border-color .16s, color .16s;
+}
+.me-link:hover{ background:var(--sage-soft); border-color:var(--sage); color:var(--sage-d); }
+html[data-senior="true"] .me-link{ font-size:15px; padding:9px 16px; }
+@media(min-width:768px){ .top-nav{ top:24px; left:28px; right:28px; } }
+
 /* ---------- 模式切换按钮 ---------- */
 .mode-toggle{
-  position:absolute; top:18px; right:18px; z-index:5;
+  position:static;
   display:inline-flex; align-items:center; gap:6px;
   background:var(--surface2); border:1.5px solid var(--line);
   border-radius:999px; padding:7px 13px;
@@ -700,6 +719,126 @@ html[data-senior="true"] .gl-root .custom-input{ border-width:2px; }
 }
 .mode-toggle[aria-pressed="true"] .mode-toggle-dot{ background:#fff; }
 html[data-senior="true"] .mode-toggle{ font-size:15px; padding:9px 16px; }
+
+/* ---------- 保存按钮 ---------- */
+.save-wrap{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  margin:0 0 18px;
+}
+.save-btn{
+  flex:1 1 auto;
+  font-family:inherit; font-weight:600; font-size:15px;
+  color:var(--terra-d);
+  background:var(--surface);
+  border:1.5px dashed var(--terra);
+  border-radius:14px; padding:13px 18px;
+  cursor:pointer; min-height:46px;
+  transition:background .16s, border-style .16s, color .16s;
+}
+.save-btn:hover:not(:disabled){
+  background:var(--terra-soft); border-style:solid;
+}
+.save-btn:disabled{ cursor:default; opacity:.85; }
+.save-link{
+  font-family:inherit; font-size:13.5px; color:var(--sage-d); font-weight:600;
+  text-decoration:none;
+}
+.save-link:hover{ text-decoration:underline; }
+.save-hint{ font-size:13px; color:var(--ink-soft); flex:1 1 100%; }
+.save-err{
+  flex:1 1 100%;
+  font-size:13px; color:var(--terra-d);
+  background:var(--terra-soft); border:1px solid var(--peach);
+  border-radius:10px; padding:9px 12px;
+}
+html[data-senior="true"] .save-btn{ font-size:17px; padding:16px 22px; min-height:54px; }
+
+/* ---------- 登录页 ---------- */
+.auth-shell{ padding-top:60px; }
+.auth-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:22px;
+  padding:32px 28px; box-shadow:0 1px 0 rgba(255,255,255,.7) inset, 0 10px 26px -18px rgba(58,52,42,.35);
+}
+.auth-back{
+  display:inline-block; font-size:13px; color:var(--ink-soft);
+  text-decoration:none; margin-bottom:14px;
+}
+.auth-back:hover{ color:var(--sage-d); }
+.auth-title{
+  font-family:'Fraunces',serif; font-size:32px; color:var(--sage-d);
+  font-weight:600; margin:0 0 6px;
+}
+.auth-sub{ font-size:14px; color:var(--ink-soft); line-height:1.55; margin:0 0 20px; }
+.auth-form{ display:flex; flex-direction:column; gap:10px; }
+.auth-label{ font-size:13px; color:var(--ink-soft); font-weight:600; }
+.auth-input{
+  font-family:inherit; font-size:16px; color:var(--ink);
+  background:var(--surface2); border:1.5px solid #C9BFA8;
+  border-radius:14px; padding:13px 16px; outline:none; min-height:48px;
+}
+.auth-input:focus{ border-color:var(--sage); box-shadow:0 0 0 3px var(--sage-soft); }
+.auth-submit{
+  margin-top:8px;
+  font-family:'Fraunces',serif; font-weight:600; font-size:17px; color:#fff;
+  background:linear-gradient(135deg,var(--terra),var(--terra-d));
+  border:none; border-radius:14px; padding:14px; cursor:pointer;
+  box-shadow:0 14px 26px -12px rgba(181,83,46,.7);
+}
+.auth-submit:disabled{ opacity:.7; cursor:default; }
+.auth-error{
+  margin-top:10px; padding:10px 14px;
+  background:var(--terra-soft); border:1px solid var(--peach); border-radius:10px;
+  font-size:13.5px; color:var(--terra-d);
+}
+.auth-sent{
+  background:var(--sage-soft); border:1px solid var(--sage); border-radius:14px;
+  padding:14px 16px; color:var(--sage-d); font-size:14px; line-height:1.55;
+}
+.auth-sent strong{ display:block; font-size:16px; margin-bottom:6px; }
+.auth-sent p{ margin:0; }
+.auth-foot{
+  margin-top:20px; padding-top:16px; border-top:1px dashed var(--line);
+  font-size:12.5px; color:var(--ink-soft); line-height:1.6;
+}
+
+/* ---------- /me 页 ---------- */
+.me-head{
+  display:flex; justify-content:space-between; align-items:flex-start;
+  gap:16px; margin-bottom:24px; padding-top:20px;
+}
+.me-back{ font-size:13px; color:var(--ink-soft); text-decoration:none; }
+.me-back:hover{ color:var(--sage-d); }
+.me-title{
+  font-family:'Fraunces',serif; font-size:30px; color:var(--sage-d);
+  font-weight:600; margin:8px 0 4px;
+}
+.me-sub{ font-size:12.5px; color:var(--ink-soft); margin:0; }
+.signout-btn{
+  font-family:inherit; font-size:13px; font-weight:600; color:var(--ink-soft);
+  background:var(--surface2); border:1.5px solid var(--line);
+  border-radius:999px; padding:7px 14px; cursor:pointer; min-height:36px;
+}
+.signout-btn:hover{ border-color:var(--terra); color:var(--terra-d); }
+
+.me-list{ list-style:none; margin:0; padding:0; }
+.me-item{ margin-bottom:14px; }
+.me-item-head{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:12px; margin-bottom:8px;
+}
+.me-item-name{
+  font-family:'Fraunces',serif; font-size:20px; color:var(--sage-d);
+  font-weight:600; margin:0;
+}
+.me-item-stats{
+  display:flex; flex-wrap:wrap; gap:10px;
+  font-size:13px; color:var(--ink-soft); margin-bottom:6px;
+}
+.me-item-stats span{
+  background:var(--surface2); border:1px solid var(--line);
+  border-radius:8px; padding:3px 9px;
+}
+.me-item-time{ font-size:11.5px; color:#b3a892; }
 @media(min-width:768px){
-  .mode-toggle{ top:24px; right:28px; }
+  .auth-card{ padding:42px 36px; }
 }

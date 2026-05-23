@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { INGREDIENTS } from "@/data/ingredients";
 import { MEALS, STAPLES, TASTES } from "@/data/rules";
+import Link from "next/link";
 import { Sprout } from "@/components/Sprout";
 import { LoadingScene } from "@/components/LoadingScene";
 import { RecipeCard } from "@/components/RecipeCard";
 import { SafetyWarning } from "@/components/SafetyWarning";
 import { ModeToggle } from "@/components/ModeToggle";
 import { DemoBanner } from "@/components/DemoBanner";
+import { SaveRecipeButton } from "@/components/SaveRecipeButton";
 import type { Ingredient, Meal, Recipe } from "@/types/recipe";
 
 export default function Page() {
@@ -137,7 +139,10 @@ export default function Page() {
       <div className="gl-bg" />
       <DemoBanner />
       <main className="gl-shell">
-        <ModeToggle />
+        <div className="top-nav">
+          <Link href="/me" className="me-link">我的菜谱本 →</Link>
+          <ModeToggle />
+        </div>
         <header className="brand">
           <div className="family">基于中 · 美 · 日三国权威糖尿病指南</div>
           <div className="logo-row">
@@ -303,7 +308,15 @@ export default function Page() {
           </div>
         )}
 
-        {recipe && !loading && <RecipeCard recipe={recipe} onRegenerate={generate} ref={resultRef} />}
+        {recipe && !loading && (
+          <>
+            <RecipeCard recipe={recipe} onRegenerate={generate} ref={resultRef} />
+            <SaveRecipeButton
+              recipe={recipe}
+              preferences={{ meal, taste, staple, ingredients: selected }}
+            />
+          </>
+        )}
 
         <footer className="foot">
           <div className="motto">看得清 · 配得稳 · 吃得安心</div>
