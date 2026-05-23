@@ -39,6 +39,17 @@ export type RuleCheck = {
   reason: string;
 };
 
+/** 用户给的食材里没进主菜的项的安排 */
+export type CompanionTiming = "pre" | "snack" | "postMeal" | "rejected";
+
+export type Companion = {
+  name: string;
+  amount?: string;
+  timing: CompanionTiming;
+  /** 简短说明为什么放这里 / 为什么 rejected */
+  reason: string;
+};
+
 export type Recipe = {
   dishName: string;
   dishNameEn?: string;
@@ -49,6 +60,13 @@ export type Recipe = {
   /** 升糖指数估算（菜肴整体） */
   gi?: "low" | "medium" | "high";
   why?: string;
+  /** 适口度自评 1-5，AI 应诚实评估搭配的好吃程度 */
+  palatability?: number;
+  /**
+   * 食材是否够搭出一道完整菜。false 时 AI 必须在 tips 里
+   * 明确说"还缺什么"（如蛋白、蔬菜、主食），不应该硬凑。
+   */
+  ingredientsSufficient: boolean;
   nutrition?: {
     carbs: string;
     fiber: string;
@@ -60,7 +78,9 @@ export type Recipe = {
   steps: string[];
   /** 推荐进餐顺序：每项一条，按顺序排列 */
   mealOrder: string[];
-  /** 8 条硬规则的合规检查 */
+  /** 用户给的食材里没进主菜的项（水果/坚果/被拒绝的奶茶等） */
+  companions?: Companion[];
+  /** 8 条硬规则的合规检查 — 服务端验证后的最终结果，可能覆盖 AI 自报 */
   rulesCheck: RuleCheck[];
   tips?: string[];
   afterMeal?: string;

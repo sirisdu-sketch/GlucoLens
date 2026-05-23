@@ -6,6 +6,7 @@ import {
 } from "@/lib/gemini";
 import { buildPrompt } from "@/lib/prompt";
 import { getClientIp, limit } from "@/lib/ratelimit";
+import { validateAndPatch } from "@/lib/validateRules";
 import type { Preferences } from "@/types/recipe";
 
 export const runtime = "nodejs";
@@ -59,13 +60,34 @@ export async function POST(req: Request) {
             await new Promise((r) => setTimeout(r, 350));
             send(controller, { type: "chunk", received: i * 220 });
           }
-          send(controller, { type: "done", recipe: mockRecipe() });
+          send(controller, {
+            type: "done",
+            recipe: validateAndPatch(mockRecipe(), prefs),
+          });
         } else {
           const prompt = buildPrompt(prefs);
-          const text = await streamGeminiText(prompt, (n) => {
-            send(controller, { type: "chunk", received: n });
-          });
-          const recipe = normalizeRecipe(parseRecipeJson(text));
+          let text = "";
+          let parsed: unknown;
+          let lastErr: unknown;
+          // 一次重试：Gemini 偶尔会吐出破损 JSON
+          for (let attempt = 0; attempt < 2; attempt++) {
+            try {
+              text = await streamGeminiText(prompt, (n) => {
+                send(controller, { type: "chunk", received: n });
+              });
+              parsed = parseRecipeJson(text);
+              lastErr = null;
+              break;
+            } catch (e) {
+              lastErr = e;
+              if (attempt === 0) {
+                send(controller, { type: "chunk", received: 0 }); // 重置进度
+              }
+            }
+          }
+          if (lastErr || !parsed) throw lastErr ?? new Error("Gemini 返回非 JSON 内容");
+          const raw = normalizeRecipe(parsed);
+          const recipe = validateAndPatch(raw, prefs);
           send(controller, { type: "done", recipe });
         }
       } catch (e) {

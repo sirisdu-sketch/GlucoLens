@@ -2,8 +2,15 @@
 
 import { forwardRef } from "react";
 import { HARD_RULES, SOURCES } from "@/data/rules";
-import type { Recipe, SourceCode } from "@/types/recipe";
+import type { Companion, CompanionTiming, Recipe, SourceCode } from "@/types/recipe";
 import { SafetyWarning } from "./SafetyWarning";
+
+const TIMING_LABEL: Record<CompanionTiming, string> = {
+  pre: "餐前",
+  snack: "加餐",
+  postMeal: "饭后",
+  rejected: "不建议",
+};
 
 type Props = {
   recipe: Recipe;
@@ -49,6 +56,22 @@ export const RecipeCard = forwardRef<HTMLElement, Props>(function RecipeCard(
 
       <h2 className="dish-name">{recipe.dishName}</h2>
       {recipe.dishNameEn && <div className="dish-en">{recipe.dishNameEn}</div>}
+
+      {typeof recipe.palatability === "number" && (
+        <div className="palatability" aria-label={`适口度 ${recipe.palatability} / 5`}>
+          适口度
+          <span className="stars">
+            {"★".repeat(recipe.palatability)}
+            <span className="dim">{"★".repeat(5 - recipe.palatability)}</span>
+          </span>
+        </div>
+      )}
+
+      {recipe.ingredientsSufficient === false && (
+        <div className="insufficient-warn" role="note">
+          <strong>食材不足：</strong>这道是当前食材能搭出的最佳版本，但还**不够均衡**——请看 tips 第一条了解还缺什么。
+        </div>
+      )}
 
       {recipe.why && <blockquote className="why">{recipe.why}</blockquote>}
 
@@ -121,6 +144,10 @@ export const RecipeCard = forwardRef<HTMLElement, Props>(function RecipeCard(
         </div>
       )}
 
+      {recipe.companions && recipe.companions.length > 0 && (
+        <CompanionsBox companions={recipe.companions} />
+      )}
+
       <div className="rules-box">
         <div className="rules-title">循证规则合规审计 · {passCount}/{total}</div>
         <ul className="rules-list">
@@ -172,3 +199,36 @@ export const RecipeCard = forwardRef<HTMLElement, Props>(function RecipeCard(
     </section>
   );
 });
+
+function CompanionsBox({ companions }: { companions: Companion[] }) {
+  const grouped: Record<CompanionTiming, Companion[]> = {
+    pre: [],
+    snack: [],
+    postMeal: [],
+    rejected: [],
+  };
+  for (const c of companions) grouped[c.timing].push(c);
+  const order: CompanionTiming[] = ["pre", "snack", "postMeal", "rejected"];
+
+  return (
+    <div className="companions-box">
+      <div className="companions-title">你给的其他食材怎么安排</div>
+      {order.map((t) =>
+        grouped[t].length === 0 ? null : (
+          <div key={t} className={`companion-group ${t}`}>
+            <div className="companion-group-label">{TIMING_LABEL[t]}</div>
+            <ul>
+              {grouped[t].map((c, i) => (
+                <li key={i}>
+                  <span className="companion-name">{c.name}</span>
+                  {c.amount && <span className="companion-amount"> · {c.amount}</span>}
+                  <span className="companion-reason"> — {c.reason}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      )}
+    </div>
+  );
+}

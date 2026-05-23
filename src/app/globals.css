@@ -431,6 +431,64 @@ html[data-senior="true"] .wok-thumb .wok-wrap{ transform:scale(0.68); }
 .tips-box ul{ margin:0; padding-left:18px; }
 .tips-box li{ font-size:13.5px; color:var(--ink); line-height:1.55; margin-bottom:5px; }
 
+/* ---------- 适口度评分 ---------- */
+.palatability{
+  display:inline-flex; align-items:center; gap:8px;
+  font-size:12.5px; color:var(--ink-soft); font-weight:600;
+  margin-bottom:8px;
+}
+.palatability .stars{
+  font-size:15px; color:var(--terra); letter-spacing:1px;
+}
+.palatability .stars .dim{ color:var(--line); }
+
+/* ---------- 食材不足警告 ---------- */
+.insufficient-warn{
+  background:#FBF1DC; border:1.5px solid var(--butter); border-radius:14px;
+  padding:11px 16px; margin-bottom:14px;
+  font-size:13.5px; color:#7A5A12; line-height:1.55;
+}
+.insufficient-warn strong{ color:#634A0E; }
+
+/* ---------- 餐伴 companions ---------- */
+.companions-box{
+  background:var(--surface2); border:1px solid var(--line);
+  border-radius:16px; padding:14px 16px; margin-bottom:14px;
+}
+.companions-title{
+  font-family:'Fraunces',serif; font-weight:600; font-size:14.5px;
+  color:var(--sage-d); margin-bottom:10px;
+}
+.companion-group{ margin-bottom:9px; }
+.companion-group:last-child{ margin-bottom:0; }
+.companion-group-label{
+  display:inline-block;
+  font-size:11.5px; font-weight:700; letter-spacing:.1em;
+  padding:2px 9px; border-radius:999px;
+  margin-bottom:5px;
+}
+.companion-group.pre .companion-group-label{ background:var(--sage-soft); color:var(--sage-d); }
+.companion-group.snack .companion-group-label{ background:var(--sage-soft); color:var(--sage-d); }
+.companion-group.postMeal .companion-group-label{ background:#FBF1DC; color:#9A7A22; }
+.companion-group.rejected .companion-group-label{ background:var(--terra-soft); color:var(--terra-d); }
+
+.companion-group ul{ margin:0; padding:0 0 0 12px; list-style:disc; }
+.companion-group li{
+  font-size:13px; color:var(--ink); line-height:1.55; margin-bottom:3px;
+}
+.companion-name{ font-weight:600; }
+.companion-amount{ color:var(--ink-soft); }
+.companion-reason{ color:var(--ink-soft); font-size:12.5px; }
+.companion-group.rejected li{ color:var(--terra-d); }
+.companion-group.rejected .companion-name{ text-decoration:line-through; }
+
+html[data-senior="true"] .companions-title{ font-size:16px; }
+html[data-senior="true"] .companion-group li{ font-size:15px; line-height:1.7; }
+html[data-senior="true"] .companion-reason{ font-size:14.5px; }
+html[data-senior="true"] .palatability{ font-size:14.5px; }
+html[data-senior="true"] .palatability .stars{ font-size:17px; }
+html[data-senior="true"] .insufficient-warn{ font-size:15px; }
+
 /* ---------- 进餐顺序 ---------- */
 .meal-order-box{
   background:var(--sage-soft); border-radius:16px;
