@@ -8,6 +8,7 @@ import { LoadingScene } from "@/components/LoadingScene";
 import { RecipeCard } from "@/components/RecipeCard";
 import { SafetyWarning } from "@/components/SafetyWarning";
 import { ModeToggle } from "@/components/ModeToggle";
+import { DemoBanner } from "@/components/DemoBanner";
 import type { Ingredient, Meal, Recipe } from "@/types/recipe";
 
 export default function Page() {
@@ -63,7 +64,10 @@ export default function Page() {
     if (/Failed to fetch|NetworkError|net::/.test(msg)) {
       return { title: "网络连接失败", hint: "检查网络是否通畅，然后再试一次。" };
     }
-    if (/429|RESOURCE_EXHAUSTED|quota/i.test(msg)) {
+    if (/HTTP 429/i.test(msg)) {
+      return { title: "你点得太频繁了", hint: "为避免免费 AI 额度被刷爆，每分钟最多 3 次、每天 30 次。稍等再点。" };
+    }
+    if (/RESOURCE_EXHAUSTED|quota/i.test(msg)) {
       return { title: "AI 服务限流了", hint: "Gemini 免费额度可能已用尽，稍等 1 分钟再点。" };
     }
     if (/401|403|API_KEY_INVALID/i.test(msg)) {
@@ -131,6 +135,7 @@ export default function Page() {
   return (
     <div className="gl-root">
       <div className="gl-bg" />
+      <DemoBanner />
       <main className="gl-shell">
         <ModeToggle />
         <header className="brand">

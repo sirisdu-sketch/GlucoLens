@@ -5,6 +5,7 @@ import {
   streamGeminiText,
 } from "@/lib/gemini";
 import { buildPrompt } from "@/lib/prompt";
+import { getClientIp, limit } from "@/lib/ratelimit";
 import type { Preferences } from "@/types/recipe";
 
 export const runtime = "nodejs";
@@ -17,6 +18,22 @@ type Evt =
   | { type: "error"; message: string };
 
 export async function POST(req: Request) {
+  const ip = getClientIp(req);
+  const rl = limit(ip);
+  if (!rl.ok) {
+    const msg =
+      rl.scope === "minute"
+        ? `请求过快，${rl.retryInSec} 秒后再试`
+        : `今日额度已用完，${Math.ceil((rl.retryInSec ?? 0) / 3600)} 小时后重置`;
+    return new Response(JSON.stringify({ error: msg, scope: rl.scope }), {
+      status: 429,
+      headers: {
+        "Content-Type": "application/json",
+        "Retry-After": String(rl.retryInSec ?? 60),
+      },
+    });
+  }
+
   let prefs: Preferences;
   try {
     prefs = (await req.json()) as Preferences;
