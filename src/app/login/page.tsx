@@ -140,19 +140,19 @@ function AuthForm() {
         </p>
         {info && <div className="auth-sent" style={{ marginBottom: 14 }}>{info}</div>}
         <form onSubmit={onVerify} className="auth-form">
-          <label className="auth-label" htmlFor="otp">验证码</label>
+          <label className="auth-label" htmlFor="otp">验证码（邮件里的数字，全部输入）</label>
           <input
             id="otp"
             className="auth-input otp-input"
             inputMode="numeric"
             autoComplete="one-time-code"
-            placeholder="6 位数字"
+            placeholder="6-10 位数字"
             value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 10))}
             disabled={busy}
             required
           />
-          <button type="submit" className="auth-submit" disabled={busy || otp.length !== 6}>
+          <button type="submit" className="auth-submit" disabled={busy || otp.length < 6}>
             {busy ? "验证中…" : "完成验证 · 登录"}
           </button>
           {err && <div className="auth-error">{err}</div>}
