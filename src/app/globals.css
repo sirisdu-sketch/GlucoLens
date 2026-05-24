@@ -801,6 +801,41 @@ html[data-senior="true"] .save-btn{ font-size:17px; padding:16px 22px; min-heigh
   font-size:12.5px; color:var(--ink-soft); line-height:1.6;
 }
 
+/* ---------- 登录/注册 tabs ---------- */
+.auth-tabs{
+  display:flex; gap:8px; margin-bottom:20px;
+  background:var(--surface2); border:1px solid var(--line);
+  border-radius:14px; padding:4px;
+}
+.auth-tab{
+  flex:1; font-family:inherit; font-size:14px; font-weight:600;
+  color:var(--ink-soft); background:transparent; border:none;
+  border-radius:10px; padding:10px 0; cursor:pointer;
+  transition:background .16s, color .16s, box-shadow .16s;
+}
+.auth-tab:hover{ color:var(--sage-d); }
+.auth-tab.on{
+  background:var(--sage); color:#fff;
+  box-shadow:0 6px 12px -7px rgba(78,102,68,.7);
+}
+.auth-secondary{
+  margin-top:16px; padding-top:14px;
+  border-top:1px dashed var(--line);
+  display:flex; flex-direction:column; gap:8px;
+}
+.link-btn{
+  background:transparent; border:none; padding:0; cursor:pointer;
+  font-family:inherit; font-size:13.5px; font-weight:600;
+  color:var(--sage-d); text-decoration:underline;
+}
+.link-btn:hover{ color:var(--terra-d); }
+.otp-input{
+  font-size:24px; letter-spacing:.5em; text-align:center;
+  font-family:'Fraunces',serif; padding:14px 18px;
+}
+html[data-senior="true"] .auth-tab{ font-size:16px; padding:12px 0; }
+html[data-senior="true"] .otp-input{ font-size:28px; }
+
 /* ---------- /me 页 ---------- */
 .me-head{
   display:flex; justify-content:space-between; align-items:flex-start;
