@@ -830,9 +830,17 @@ html[data-senior="true"] .save-btn{ font-size:17px; padding:16px 22px; min-heigh
 }
 .link-btn:hover{ color:var(--terra-d); }
 .otp-input{
-  font-size:24px; letter-spacing:.5em; text-align:center;
-  font-family:'Fraunces',serif; padding:14px 18px;
+  font-size:22px; letter-spacing:.25em; text-align:center;
+  font-family:ui-monospace, "SF Mono", Consolas, monospace; padding:14px 18px;
 }
+
+.verify-hint{
+  margin:8px 0 14px; padding-left:22px;
+  font-size:13.5px; color:var(--ink); line-height:1.65;
+}
+.verify-hint li{ margin-bottom:5px; }
+.verify-hint strong{ color:var(--sage-d); }
+html[data-senior="true"] .verify-hint{ font-size:15.5px; line-height:1.75; }
 html[data-senior="true"] .auth-tab{ font-size:16px; padding:12px 0; }
 html[data-senior="true"] .otp-input{ font-size:28px; }
 

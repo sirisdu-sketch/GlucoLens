@@ -6,12 +6,13 @@ import Link from "next/link";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 
 type Tab = "login" | "signup";
-type Stage = "form" | "verify-otp";
+type Stage = "form" | "verify";
 
 function AuthForm() {
   const router = useRouter();
   const params = useSearchParams();
   const redirect = params.get("redirect") || "/me";
+  const initialErr = params.get("err");
 
   const [tab, setTab] = useState<Tab>("login");
   const [stage, setStage] = useState<Stage>("form");
@@ -19,18 +20,18 @@ function AuthForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
-  const [otp, setOtp] = useState("");
+  const [token, setToken] = useState("");
 
   const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
+  const [err, setErr] = useState(initialErr ? translate(initialErr) : "");
   const [info, setInfo] = useState("");
 
-  const reset = () => {
+  const clear = () => {
     setErr("");
     setInfo("");
   };
 
-  const supabase = () => {
+  const getClient = () => {
     const sb = supabaseBrowser();
     if (!sb) {
       setErr("账户功能尚未启用：Supabase 环境变量未配置");
@@ -39,21 +40,21 @@ function AuthForm() {
     return sb;
   };
 
-  // === 登录：邮箱 + 密码 ===
+  // ====== 登录 ======
   const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    reset();
-    const sb = supabase();
+    clear();
+    const sb = getClient();
     if (!sb) return;
     setBusy(true);
     const { error } = await sb.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) {
-      // 邮箱未验证 → 直接去 OTP 验证流程
       if (/Email not confirmed/i.test(error.message)) {
-        setStage("verify-otp");
-        setInfo("邮箱尚未验证。我们刚发了一个 6 位验证码到你邮箱，输入即可激活账户。");
+        // 邮箱未验证：重发并跳验证页
         await sb.auth.resend({ type: "signup", email });
+        setStage("verify");
+        setInfo("此邮箱尚未验证。我们刚给你重发了验证码，邮件里有 一组数字 或 一个链接，任选其一即可激活。");
         return;
       }
       setErr(translate(error.message));
@@ -63,47 +64,51 @@ function AuthForm() {
     router.refresh();
   };
 
-  // === 注册：邮箱 + 密码 → 发 OTP ===
+  // ====== 注册 ======
   const onSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    reset();
-    if (password.length < 6) {
-      setErr("密码至少 6 位");
-      return;
-    }
-    if (password !== password2) {
-      setErr("两次输入的密码不一致");
-      return;
-    }
-    const sb = supabase();
+    clear();
+    if (password.length < 6) return setErr("密码至少 6 位");
+    if (password !== password2) return setErr("两次密码不一致");
+
+    const sb = getClient();
     if (!sb) return;
     setBusy(true);
-    const { data, error } = await sb.auth.signUp({ email, password });
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const { data, error } = await sb.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(redirect)}`,
+      },
+    });
     setBusy(false);
+
     if (error) {
       setErr(translate(error.message));
       return;
     }
-    // 若 Supabase 后台关闭了邮箱确认，signUp 会直接返回 session
+    // 如果 Supabase 关掉了「Confirm email」，signUp 直接返回 session
     if (data.session) {
       router.push(redirect);
       router.refresh();
       return;
     }
-    setStage("verify-otp");
-    setInfo("已发送 6 位验证码到你的邮箱，5 分钟内输入即可完成注册。");
+    // 否则进入验证页
+    setStage("verify");
+    setInfo("注册成功。请去邮箱查收验证邮件：里面有 一组数字 或 一个链接，任选其一即可激活账户。");
   };
 
-  // === 验证 OTP ===
+  // ====== 用 OTP 数字码完成验证 ======
   const onVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    reset();
-    const sb = supabase();
+    clear();
+    const sb = getClient();
     if (!sb) return;
     setBusy(true);
     const { error } = await sb.auth.verifyOtp({
       email,
-      token: otp.trim(),
+      token: token.trim(),
       type: "signup",
     });
     setBusy(false);
@@ -115,10 +120,10 @@ function AuthForm() {
     router.refresh();
   };
 
-  // === 重发 OTP ===
-  const onResendOtp = async () => {
-    reset();
-    const sb = supabase();
+  // ====== 重发邮件 ======
+  const onResend = async () => {
+    clear();
+    const sb = getClient();
     if (!sb) return;
     setBusy(true);
     const { error } = await sb.auth.resend({ type: "signup", email });
@@ -127,53 +132,78 @@ function AuthForm() {
       setErr(translate(error.message));
       return;
     }
-    setInfo("验证码已重新发送，请查收邮件。");
+    setInfo("已重新发送验证邮件，请查收。");
   };
 
-  // ====== OTP 验证视图 ======
-  if (stage === "verify-otp") {
+  // ====== 渲染：验证视图 ======
+  if (stage === "verify") {
     return (
       <div className="auth-card">
         <h1 className="auth-title">验证邮箱</h1>
         <p className="auth-sub">
-          我们给 <b>{email}</b> 发了一封带 <b>6 位验证码</b> 的邮件。
+          邮件已发到 <b>{email}</b>。两种方式任选其一：
         </p>
-        {info && <div className="auth-sent" style={{ marginBottom: 14 }}>{info}</div>}
-        <form onSubmit={onVerify} className="auth-form">
-          <label className="auth-label" htmlFor="otp">验证码（邮件里的数字，全部输入）</label>
+        <ol className="verify-hint">
+          <li>
+            <strong>点邮件里的链接</strong>——会自动跳回这里并完成验证（推荐）
+          </li>
+          <li>
+            <strong>复制邮件里的数字码</strong>粘到下面（链接被邮件客户端拦截时用）
+          </li>
+        </ol>
+
+        {info && <div className="auth-sent">{info}</div>}
+
+        <form onSubmit={onVerify} className="auth-form" style={{ marginTop: 16 }}>
+          <label className="auth-label" htmlFor="token">数字码</label>
           <input
-            id="otp"
+            id="token"
             className="auth-input otp-input"
             inputMode="numeric"
             autoComplete="one-time-code"
-            placeholder="6-10 位数字"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 10))}
+            placeholder="粘贴邮件里完整的数字"
+            value={token}
+            onChange={(e) => setToken(e.target.value.replace(/\s/g, ""))}
             disabled={busy}
             required
           />
-          <button type="submit" className="auth-submit" disabled={busy || otp.length < 6}>
-            {busy ? "验证中…" : "完成验证 · 登录"}
+          <button
+            type="submit"
+            className="auth-submit"
+            disabled={busy || token.length < 6}
+          >
+            {busy ? "验证中…" : "用数字码完成验证"}
           </button>
           {err && <div className="auth-error">{err}</div>}
         </form>
+
         <div className="auth-secondary">
-          <button type="button" className="link-btn" onClick={onResendOtp} disabled={busy}>
-            没收到？重新发送验证码
+          <button type="button" className="link-btn" onClick={onResend} disabled={busy}>
+            没收到邮件？重新发送
           </button>
-          <button type="button" className="link-btn" onClick={() => { setStage("form"); reset(); }}>
-            ← 改邮箱重新开始
+          <button
+            type="button"
+            className="link-btn"
+            onClick={() => {
+              setStage("form");
+              setToken("");
+              clear();
+            }}
+          >
+            ← 换个邮箱重新开始
           </button>
         </div>
       </div>
     );
   }
 
-  // ====== 登录 / 注册 视图 ======
+  // ====== 渲染：登录/注册 ======
   const isLogin = tab === "login";
   return (
     <div className="auth-card">
-      <Link className="auth-back" href="/">← 返回首页</Link>
+      <Link className="auth-back" href="/">
+        ← 返回首页
+      </Link>
       <h1 className="auth-title">{isLogin ? "登录" : "注册"}</h1>
 
       <div className="auth-tabs" role="tablist">
@@ -181,7 +211,10 @@ function AuthForm() {
           role="tab"
           aria-selected={isLogin}
           className={`auth-tab ${isLogin ? "on" : ""}`}
-          onClick={() => { setTab("login"); reset(); }}
+          onClick={() => {
+            setTab("login");
+            clear();
+          }}
           type="button"
         >
           登录
@@ -190,7 +223,10 @@ function AuthForm() {
           role="tab"
           aria-selected={!isLogin}
           className={`auth-tab ${!isLogin ? "on" : ""}`}
-          onClick={() => { setTab("signup"); reset(); }}
+          onClick={() => {
+            setTab("signup");
+            clear();
+          }}
           type="button"
         >
           注册新账户
@@ -244,7 +280,13 @@ function AuthForm() {
         )}
 
         <button type="submit" className="auth-submit" disabled={busy}>
-          {busy ? (isLogin ? "登录中…" : "发送验证码…") : isLogin ? "登录" : "注册 · 发送验证码"}
+          {busy
+            ? isLogin
+              ? "登录中…"
+              : "提交中…"
+            : isLogin
+              ? "登录"
+              : "注册"}
         </button>
 
         {err && <div className="auth-error">{err}</div>}
@@ -255,7 +297,10 @@ function AuthForm() {
         <button
           type="button"
           className="link-btn"
-          onClick={() => { setTab(isLogin ? "signup" : "login"); reset(); }}
+          onClick={() => {
+            setTab(isLogin ? "signup" : "login");
+            clear();
+          }}
         >
           {isLogin ? "去注册 →" : "去登录 →"}
         </button>
@@ -268,11 +313,14 @@ function AuthForm() {
 
 function translate(msg: string): string {
   if (/Invalid login credentials/i.test(msg)) return "邮箱或密码错误";
-  if (/Email not confirmed/i.test(msg)) return "邮箱尚未验证，请先输入收到的验证码";
+  if (/Email not confirmed/i.test(msg)) return "邮箱尚未验证";
   if (/User already registered/i.test(msg)) return "该邮箱已注册，请直接登录";
-  if (/rate limit|too many/i.test(msg)) return "请求太频繁，请稍后再试";
-  if (/Token has expired or is invalid/i.test(msg)) return "验证码已过期或错误，请重新发送";
+  if (/rate limit|too many|For security purposes/i.test(msg))
+    return "请求太频繁，请稍后再试（邮件服务每小时仅 4 封）";
+  if (/Token has expired|Token not found|invalid/i.test(msg))
+    return "验证码已过期或错误，请重新发送";
   if (/Password should be at least/i.test(msg)) return "密码至少 6 位";
+  if (/Email rate limit exceeded/i.test(msg)) return "邮件已发太多，请等 1 小时";
   return msg;
 }
 
