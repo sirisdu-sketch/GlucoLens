@@ -885,3 +885,96 @@ html[data-senior="true"] .otp-input{ font-size:28px; }
 @media(min-width:768px){
   .auth-card{ padding:42px 36px; }
 }
+
+/* ====== Glucose Logger (P4 Phase B) ====== */
+.glucose-card{ margin-bottom:24px; }
+.glucose-head{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:12px; flex-wrap:wrap; margin-bottom:12px;
+}
+.glucose-title{ font-size:18px; margin:0 0 4px; }
+.glucose-sub{ font-size:12px; color:var(--ink-soft); margin:0; line-height:1.5; }
+.glucose-windows{ display:flex; gap:4px; }
+.glucose-win-btn{
+  font-size:12px; padding:5px 10px; border:1px solid var(--line);
+  background:var(--surface2); border-radius:7px; color:var(--ink-soft);
+  cursor:pointer; transition:all .15s;
+}
+.glucose-win-btn:hover{ color:var(--ink); }
+.glucose-win-btn.on{
+  background:var(--sage-soft); border-color:var(--sage); color:var(--sage-d);
+  font-weight:600;
+}
+.glucose-empty{
+  padding:32px 12px; text-align:center; color:var(--ink-soft);
+  border:1px dashed var(--line); border-radius:10px; font-size:14px;
+}
+.glucose-chart{ margin:18px -4px 12px; position:relative; }
+.glucose-yunit{
+  position:absolute; top:-16px; left:0;
+  font-size:11px; color:var(--ink-soft); font-weight:600;
+  letter-spacing:.02em;
+}
+.glucose-tip{
+  background:#fff; border:1px solid var(--line); border-radius:8px;
+  padding:8px 11px; font-size:12px; box-shadow:0 4px 12px rgba(0,0,0,.08);
+  min-width:140px;
+}
+.glucose-tip-val{ font-size:16px; font-weight:700; color:var(--sage-d); margin-bottom:4px; }
+.glucose-tip-val span{ font-size:11px; font-weight:400; color:var(--ink-soft); margin-left:2px; }
+.glucose-tip-meta{ color:var(--ink-soft); line-height:1.5; }
+.glucose-tip-note{ margin-top:4px; padding-top:4px; border-top:1px dashed var(--line); color:var(--ink); }
+.glucose-toggle{
+  display:block; width:100%; padding:10px; margin-bottom:8px;
+  border:1px dashed var(--line); background:transparent;
+  border-radius:9px; cursor:pointer; color:var(--sage-d);
+  font-size:14px; font-weight:600;
+}
+.glucose-toggle:hover{ background:var(--surface2); }
+.glucose-form{ display:flex; flex-direction:column; gap:10px; padding:12px 0; }
+.glucose-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.glucose-field{ display:flex; flex-direction:column; gap:4px; font-size:12.5px; color:var(--ink-soft); font-weight:600; }
+.glucose-field input, .glucose-field select{
+  font:inherit; font-size:14px; font-weight:400; color:var(--ink);
+  padding:9px 11px; border:1px solid var(--line); border-radius:8px;
+  background:#fff;
+}
+.glucose-field input:focus, .glucose-field select:focus{
+  outline:none; border-color:var(--sage); box-shadow:0 0 0 3px var(--sage-soft);
+}
+.glucose-actions{ display:flex; align-items:center; gap:12px; margin-top:4px; }
+.glucose-submit{
+  padding:9px 22px; background:var(--sage); color:#fff;
+  border:0; border-radius:8px; font-weight:600; cursor:pointer;
+}
+.glucose-submit:hover{ background:var(--sage-d); }
+.glucose-submit:disabled{ opacity:.6; cursor:default; }
+.glucose-info{ font-size:13px; color:var(--sage-d); }
+.glucose-err{ font-size:13px; color:#c46b4d; }
+.glucose-recent{
+  list-style:none; padding:0; margin:12px 0 0;
+  border-top:1px solid var(--line); padding-top:10px;
+}
+.glucose-recent-item{
+  display:flex; align-items:center; gap:10px; padding:7px 4px;
+  font-size:13px; border-bottom:1px solid var(--line);
+}
+.glucose-recent-item:last-child{ border-bottom:0; }
+.glucose-recent-val{ font-weight:700; color:var(--ink); min-width:62px; }
+.glucose-recent-val small{ font-size:10px; font-weight:400; color:var(--ink-soft); margin-left:2px; }
+.glucose-recent-ctx{
+  font-size:11px; padding:2px 7px; background:var(--surface2);
+  border-radius:6px; color:var(--ink-soft); white-space:nowrap;
+}
+.glucose-recent-time{ color:var(--ink-soft); font-size:12px; }
+.glucose-recent-recipe{ color:var(--ink-soft); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+.glucose-recent-del{
+  margin-left:auto; border:0; background:transparent; cursor:pointer;
+  color:#b3a892; font-size:18px; line-height:1; padding:4px 8px;
+  border-radius:5px;
+}
+.glucose-recent-del:hover{ color:#c46b4d; background:#fbe9e3; }
+@media(max-width:520px){
+  .glucose-row{ grid-template-columns:1fr; }
+  .glucose-recent-time, .glucose-recent-recipe{ display:none; }
+}

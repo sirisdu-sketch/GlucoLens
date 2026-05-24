@@ -290,6 +290,14 @@ function AuthForm() {
         </button>
 
         {err && <div className="auth-error">{err}</div>}
+
+        {isLogin && (
+          <div className="auth-secondary" style={{ marginTop: 4 }}>
+            <Link className="link-btn" href="/auth/forgot-password">
+              忘记密码？
+            </Link>
+          </div>
+        )}
       </form>
 
       <p className="auth-foot">

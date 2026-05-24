@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { supabaseServer } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/SignOutButton";
+import { GlucoseLogger } from "@/components/GlucoseLogger";
 import type { Recipe } from "@/types/recipe";
+import type { GlucoseReading } from "@/types/glucose";
 
 export const dynamic = "force-dynamic";
 
@@ -31,14 +33,25 @@ export default async function MePage() {
     );
   }
 
-  const { data, error } = await sb
-    .from("saved_recipes")
-    .select("id, slug, dish_name, created_at, recipe_data")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(100);
+  const [recipesRes, readingsRes] = await Promise.all([
+    sb
+      .from("saved_recipes")
+      .select("id, slug, dish_name, created_at, recipe_data")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(100),
+    sb
+      .from("glucose_readings")
+      .select("id, user_id, recipe_id, value_mmol, context, measured_at, note, created_at")
+      .eq("user_id", user.id)
+      .order("measured_at", { ascending: false })
+      .limit(500),
+  ]);
 
+  const { data, error } = recipesRes;
   const items: RecipeRow[] = (data ?? []) as RecipeRow[];
+  const readings: GlucoseReading[] = (readingsRes.data ?? []) as GlucoseReading[];
+  const recipeOptions = items.map((r) => ({ id: r.id, dish_name: r.dish_name }));
 
   return (
     <div className="gl-root">
@@ -54,6 +67,11 @@ export default async function MePage() {
           </div>
           <SignOutButton />
         </header>
+
+        <GlucoseLogger
+          initialReadings={readings}
+          recipeOptions={recipeOptions}
+        />
 
         {error && (
           <div className="error-box">
